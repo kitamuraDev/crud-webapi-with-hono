@@ -4,6 +4,7 @@ import { Hono } from 'hono';
 import { safeParse } from 'valibot';
 
 import { todo } from '../db/schema';
+import { transformTodoResponse } from '../utils/transformers';
 import { todosResponseSchema } from '../validators/todo.schema';
 
 /**
@@ -20,13 +21,7 @@ todos.get('/', async (c) => {
     const db = drizzle(c.env.todo);
     const result = await db.select().from(todo).where(eq(todo.user_id, 1)).all(); // TODO: user_idは認証（auth）API実装後に動的に取得すること
 
-    const transformedResponse = result.map((t) => ({
-      id: t.id,
-      title: t.title,
-      isCompleted: t.is_completed === 1,
-    }));
-
-    const parsed = safeParse(todosResponseSchema, transformedResponse);
+    const parsed = safeParse(todosResponseSchema, transformTodoResponse(result));
     if (!parsed.success) {
       console.error(parsed.issues);
       return c.json({ message: 'Internal Server Error: Invalid response' }, 500);
