@@ -1,3 +1,9 @@
 @devBaseUrl = http://localhost:8787
+@prodBaseUrl = https://crud-webapi-with-hono.kitamuradev.workers.dev/
+@basePath = api
 
-GET {{devBaseUrl}}/message HTTP/1.1
+GET {{devBaseUrl}}/{{basePath}}/todos HTTP/1.1
+
+###
+
+GET {{prodBaseUrl}}/{{basePath}}/todos HTTP/1.1
