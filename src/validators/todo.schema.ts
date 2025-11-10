@@ -1,8 +1,8 @@
 import { array, boolean, number, object, string } from 'valibot';
 
-export const todoSchema = object({
+export const TodoSchema = object({
   id: number(),
   title: string(),
   isCompleted: boolean(),
 });
-export const todosResponseSchema = array(todoSchema);
+export const TodosResponseSchema = array(TodoSchema);
