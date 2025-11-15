@@ -1,15 +1,15 @@
-import { eq } from 'drizzle-orm';
+import { sValidator } from '@hono/standard-validator';
+import { and, eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
 import { Hono } from 'hono';
-import { safeParse } from 'valibot';
-
+import { object, safeParse, string } from 'valibot';
 import { todo } from '../db/schema';
-import { transformTodoResponse } from '../utils/transformers';
-import { TodosResponseSchema } from '../validators/todo.schema';
+import { transformTodoResponse, transformTodosResponse } from '../utils/transformers';
+import { TodoResponseSchema, TodosResponseSchema } from '../validators/todo.schema';
 
 /**
  * [x] GET: /todos         // タスク一覧取得
- * [ ] GET: /todos/{id}    // タスク単一取得
+ * [x] GET: /todos/{id}    // タスク単一取得
  * [ ] POST: /todos        // タスク作成
  * [ ] PUT: /todos/{id}    // タスク更新
  * [ ] DELETE: /todos/{id} // タスク削除
@@ -21,7 +21,35 @@ todos.get('/', async (c) => {
     const db = drizzle(c.env.todo);
     const result = await db.select().from(todo).where(eq(todo.user_id, 1)).all(); // TODO: user_idは認証（auth）API実装後に動的に取得すること
 
-    const parsed = safeParse(TodosResponseSchema, transformTodoResponse(result));
+    const parsed = safeParse(TodosResponseSchema, transformTodosResponse(result));
+    if (!parsed.success) {
+      console.error(parsed.issues);
+      return c.json({ message: 'Internal Server Error: Invalid response' }, 500);
+    }
+
+    return c.json(parsed.output, 200);
+  } catch (e) {
+    console.error(e);
+    return c.json({ message: 'Internal Server Error' }, 500);
+  }
+});
+
+todos.get('/:id', sValidator('param', object({ id: string() })), async (c) => {
+  const id = Number(c.req.param('id'));
+
+  try {
+    const db = drizzle(c.env.todo);
+    const result = await db
+      .select()
+      .from(todo)
+      .where(and(eq(todo.user_id, 1), eq(todo.id, id)))
+      .get();
+
+    if (!result) {
+      return c.json({ message: 'Not Found' }, 404);
+    }
+
+    const parsed = safeParse(TodoResponseSchema, transformTodoResponse(result));
     if (!parsed.success) {
       console.error(parsed.issues);
       return c.json({ message: 'Internal Server Error: Invalid response' }, 500);

@@ -2,8 +2,22 @@
 @prodBaseUrl = https://crud-webapi-with-hono.kitamuradev.workers.dev
 @basePath = api
 
+### ==============================
+### GET: /todos
+### ==============================
+
 GET {{devBaseUrl}}/{{basePath}}/todos HTTP/1.1
 
 ###
 
 GET {{prodBaseUrl}}/{{basePath}}/todos HTTP/1.1
+
+### ==============================
+### GET: /todos/{id}
+### ==============================
+
+GET {{devBaseUrl}}/{{basePath}}/todos/1 HTTP/1.1
+
+###
+
+GET {{prodBaseUrl}}/{{basePath}}/todos/1 HTTP/1.1
