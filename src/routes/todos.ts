@@ -35,7 +35,7 @@ todos.get('/', async (c) => {
 });
 
 todos.get('/:id', sValidator('param', object({ id: string() })), async (c) => {
-  const id = Number(c.req.param('id'));
+  const id = Number(c.req.valid('param').id);
 
   try {
     const db = drizzle(c.env.todo);
