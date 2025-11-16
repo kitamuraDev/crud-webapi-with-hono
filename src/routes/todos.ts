@@ -7,13 +7,6 @@ import { todo } from '../db/schema';
 import { transformTodoResponse, transformTodosResponse } from '../utils/transformers';
 import { TodoCreateSchema, TodoResponseSchema, TodosResponseSchema } from '../validators/todo.schema';
 
-/**
- * [x] GET: /todos         // タスク一覧取得
- * [x] GET: /todos/{id}    // タスク単一取得
- * [x] POST: /todos        // タスク作成
- * [x] PUT: /todos/{id}    // タスク更新
- * [ ] DELETE: /todos/{id} // タスク削除
- */
 const todos = new Hono<{ Bindings: CloudflareBindings }>();
 
 todos.get('/', async (c) => {
@@ -117,6 +110,28 @@ todos.put('/:id', sValidator('param', object({ id: string() })), sValidator('jso
     }
 
     return c.json(parsed.output, 200);
+  } catch (e) {
+    console.error(e);
+    return c.json({ message: 'Internal Server Error' }, 500);
+  }
+});
+
+todos.delete('/:id', sValidator('param', object({ id: string() })), async (c) => {
+  const id = Number(c.req.valid('param').id);
+
+  try {
+    const db = drizzle(c.env.todo);
+    const result = await db
+      .delete(todo)
+      .where(and(eq(todo.user_id, 1), eq(todo.id, id)))
+      .returning()
+      .get();
+
+    if (!result) {
+      return c.json({ message: 'Not Found' }, 404);
+    }
+
+    return c.newResponse(null, { status: 204 });
   } catch (e) {
     console.error(e);
     return c.json({ message: 'Internal Server Error' }, 500);

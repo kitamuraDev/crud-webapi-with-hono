@@ -65,3 +65,13 @@ Content-Type: application/json
   "title": "updated task",
   "isCompleted": 1
 }
+
+### ==============================
+### DELETE: /todos/{id}
+### ==============================
+
+DELETE {{devBaseUrl}}/{{basePath}}/todos/1 HTTP/1.1
+
+###
+
+DELETE {{prodBaseUrl}}/{{basePath}}/todos/1 HTTP/1.1
