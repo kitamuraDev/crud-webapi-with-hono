@@ -2,7 +2,7 @@
   "name": "crud-webapi-with-hono",
   "type": "module",
   "scripts": {
-    "dev": "bun run db:seed && wrangler dev",
+    "dev": "bun run db:seed:local && wrangler dev",
     "deploy": "wrangler deploy --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "biome": "biome check --write ./src",
@@ -10,7 +10,8 @@
     "dz:studio": "drizzle-kit studio",
     "db:migrate:local": "wrangler d1 migrations apply todo --local",
     "db:migrate:remote": "wrangler d1 migrations apply todo --remote",
-    "db:seed": "wrangler d1 execute todo --local --file=./src/db/seed.sql"
+    "db:seed:local": "wrangler d1 execute todo --local --file=./src/db/seed.sql",
+    "db:seed:remote": "wrangler d1 execute todo --remote --file=./src/db/seed.sql"
   },
   "dependencies": {
     "@hono/standard-validator": "^0.1.5",
