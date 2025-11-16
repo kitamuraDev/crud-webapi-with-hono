@@ -5,7 +5,7 @@ import { Hono } from 'hono';
 import { object, safeParse, string } from 'valibot';
 import { todo } from '../db/schema';
 import { transformTodoResponse, transformTodosResponse } from '../utils/transformers';
-import { TodoResponseSchema, TodosResponseSchema } from '../validators/todo.schema';
+import { TodoCreateSchema, TodoResponseSchema, TodosResponseSchema } from '../validators/todo.schema';
 
 /**
  * [x] GET: /todos         // タスク一覧取得
@@ -56,6 +56,34 @@ todos.get('/:id', sValidator('param', object({ id: string() })), async (c) => {
     }
 
     return c.json(parsed.output, 200);
+  } catch (e) {
+    console.error(e);
+    return c.json({ message: 'Internal Server Error' }, 500);
+  }
+});
+
+todos.post('/', sValidator('json', TodoCreateSchema), async (c) => {
+  const { title, isCompleted } = c.req.valid('json');
+
+  try {
+    const db = drizzle(c.env.todo);
+    const result = await db
+      .insert(todo)
+      .values({
+        user_id: 1,
+        title: title,
+        is_completed: isCompleted,
+      })
+      .returning()
+      .get();
+
+    const parsed = safeParse(TodoResponseSchema, transformTodoResponse(result));
+    if (!parsed.success) {
+      console.error(parsed.issues);
+      return c.json({ message: 'Internal Server Error: Invalid response' }, 500);
+    }
+
+    return c.json(parsed.output, 201);
   } catch (e) {
     console.error(e);
     return c.json({ message: 'Internal Server Error' }, 500);

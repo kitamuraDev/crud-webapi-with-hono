@@ -5,4 +5,10 @@ export const TodoResponseSchema = object({
   title: string(),
   isCompleted: boolean(),
 });
+
 export const TodosResponseSchema = array(TodoResponseSchema);
+
+export const TodoCreateSchema = object({
+  title: string(),
+  isCompleted: number(),
+});
