@@ -2,10 +2,16 @@ import { sValidator } from '@hono/standard-validator';
 import { and, eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
 import { Hono } from 'hono';
-import { object, safeParse, string } from 'valibot';
+import { safeParse } from 'valibot';
 import { todo } from '../db/schema';
 import { transformTodoResponse, transformTodosResponse } from '../utils/transformers';
-import { TodoCreateSchema, TodoResponseSchema, TodosResponseSchema, TodoUpdateSchema } from '../validators/todo.schema';
+import {
+  CreateTodoSchema,
+  ResponseTodoSchema,
+  ResponseTodosSchema,
+  TodoIdParamSchema,
+  UpdateTodoSchema,
+} from '../validators/todo.schema';
 
 const todos = new Hono<{ Bindings: CloudflareBindings }>();
 const userDamyId = 'tfi4wB9ZRyhzVE7EhIyht';
@@ -15,7 +21,7 @@ todos.get('/', async (c) => {
     const db = drizzle(c.env.todo);
     const result = await db.select().from(todo).where(eq(todo.userId, userDamyId)).all(); // TODO: user_idは認証（auth）API実装後に動的に取得すること
 
-    const parsed = safeParse(TodosResponseSchema, transformTodosResponse(result));
+    const parsed = safeParse(ResponseTodosSchema, transformTodosResponse(result));
     if (!parsed.success) {
       console.error(parsed.issues);
       return c.json({ message: 'Internal Server Error: Invalid response' }, 500);
@@ -28,7 +34,7 @@ todos.get('/', async (c) => {
   }
 });
 
-todos.get('/:id', sValidator('param', object({ id: string() })), async (c) => {
+todos.get('/:id', sValidator('param', TodoIdParamSchema), async (c) => {
   const id = c.req.valid('param').id;
 
   try {
@@ -43,7 +49,7 @@ todos.get('/:id', sValidator('param', object({ id: string() })), async (c) => {
       return c.json({ message: 'Not Found' }, 404);
     }
 
-    const parsed = safeParse(TodoResponseSchema, transformTodoResponse(result));
+    const parsed = safeParse(ResponseTodoSchema, transformTodoResponse(result));
     if (!parsed.success) {
       console.error(parsed.issues);
       return c.json({ message: 'Internal Server Error: Invalid response' }, 500);
@@ -56,14 +62,14 @@ todos.get('/:id', sValidator('param', object({ id: string() })), async (c) => {
   }
 });
 
-todos.post('/', sValidator('json', TodoCreateSchema), async (c) => {
+todos.post('/', sValidator('json', CreateTodoSchema), async (c) => {
   const { title } = c.req.valid('json');
 
   try {
     const db = drizzle(c.env.todo);
     const result = await db.insert(todo).values({ userId: userDamyId, title }).returning().get();
 
-    const parsed = safeParse(TodoResponseSchema, transformTodoResponse(result));
+    const parsed = safeParse(ResponseTodoSchema, transformTodoResponse(result));
     if (!parsed.success) {
       console.error(parsed.issues);
       return c.json({ message: 'Internal Server Error: Invalid response' }, 500);
@@ -76,7 +82,7 @@ todos.post('/', sValidator('json', TodoCreateSchema), async (c) => {
   }
 });
 
-todos.put('/:id', sValidator('param', object({ id: string() })), sValidator('json', TodoUpdateSchema), async (c) => {
+todos.put('/:id', sValidator('param', TodoIdParamSchema), sValidator('json', UpdateTodoSchema), async (c) => {
   const id = c.req.valid('param').id;
   const body = c.req.valid('json');
 
@@ -93,7 +99,7 @@ todos.put('/:id', sValidator('param', object({ id: string() })), sValidator('jso
       return c.json({ message: 'Not Found' }, 404);
     }
 
-    const parsed = safeParse(TodoResponseSchema, transformTodoResponse(result));
+    const parsed = safeParse(ResponseTodoSchema, transformTodoResponse(result));
     if (!parsed.success) {
       console.error(parsed.issues);
       return c.json({ message: 'Internal Server Error: Invalid response' }, 500);
@@ -106,7 +112,7 @@ todos.put('/:id', sValidator('param', object({ id: string() })), sValidator('jso
   }
 });
 
-todos.delete('/:id', sValidator('param', object({ id: string() })), async (c) => {
+todos.delete('/:id', sValidator('param', TodoIdParamSchema), async (c) => {
   const id = c.req.valid('param').id;
 
   try {

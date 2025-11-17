@@ -1,10 +1,10 @@
 import type { InferSelectModel } from 'drizzle-orm';
 import type { InferOutput } from 'valibot';
 import type { todo } from '../db/schema';
-import type { TodoResponseSchema } from '../validators/todo.schema';
+import type { ResponseTodoSchema } from '../validators/todo.schema';
 
 type InputTodoType = InferSelectModel<typeof todo>;
-type OutputTodoType = InferOutput<typeof TodoResponseSchema>;
+type OutputTodoType = InferOutput<typeof ResponseTodoSchema>;
 
 export const transformTodoResponse = (todo: InputTodoType): OutputTodoType => {
   return {

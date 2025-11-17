@@ -1,18 +1,22 @@
-import { array, boolean, object, string } from 'valibot';
+import { array, boolean, nanoid, object, pipe, string } from 'valibot';
 
-export const TodoResponseSchema = object({
-  id: string(),
+export const ResponseTodoSchema = object({
+  id: pipe(string(), nanoid()),
   title: string(),
   isCompleted: boolean(),
 });
 
-export const TodosResponseSchema = array(TodoResponseSchema);
+export const ResponseTodosSchema = array(ResponseTodoSchema);
 
-export const TodoCreateSchema = object({
+export const CreateTodoSchema = object({
   title: string(),
 });
 
-export const TodoUpdateSchema = object({
+export const UpdateTodoSchema = object({
   title: string(),
   isCompleted: boolean(),
+});
+
+export const TodoIdParamSchema = object({
+  id: pipe(string(), nanoid()),
 });
