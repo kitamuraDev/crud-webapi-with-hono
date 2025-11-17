@@ -10,5 +10,9 @@ export const TodosResponseSchema = array(TodoResponseSchema);
 
 export const TodoCreateSchema = object({
   title: string(),
-  isCompleted: number(),
+});
+
+export const TodoUpdateSchema = object({
+  title: string(),
+  isCompleted: boolean(),
 });

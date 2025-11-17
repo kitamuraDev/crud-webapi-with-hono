@@ -12,5 +12,5 @@ export const todo = sqliteTable('todo', {
     .notNull()
     .references(() => user.id),
   title: text('title').notNull(),
-  isCompleted: integer('is_completed').notNull(), // 0 or 1で管理（boolean型はsqliteに存在しないため）
+  isCompleted: integer('is_completed', { mode: 'boolean' }).default(false),
 });

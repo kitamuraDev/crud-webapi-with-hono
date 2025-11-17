@@ -5,7 +5,7 @@ import { Hono } from 'hono';
 import { object, safeParse, string } from 'valibot';
 import { todo } from '../db/schema';
 import { transformTodoResponse, transformTodosResponse } from '../utils/transformers';
-import { TodoCreateSchema, TodoResponseSchema, TodosResponseSchema } from '../validators/todo.schema';
+import { TodoCreateSchema, TodoResponseSchema, TodosResponseSchema, TodoUpdateSchema } from '../validators/todo.schema';
 
 const todos = new Hono<{ Bindings: CloudflareBindings }>();
 
@@ -56,15 +56,11 @@ todos.get('/:id', sValidator('param', object({ id: string() })), async (c) => {
 });
 
 todos.post('/', sValidator('json', TodoCreateSchema), async (c) => {
-  const body = c.req.valid('json');
+  const { title } = c.req.valid('json');
 
   try {
     const db = drizzle(c.env.todo);
-    const result = await db
-      .insert(todo)
-      .values({ ...body, userId: 1 })
-      .returning()
-      .get();
+    const result = await db.insert(todo).values({ userId: 1, title }).returning().get();
 
     const parsed = safeParse(TodoResponseSchema, transformTodoResponse(result));
     if (!parsed.success) {
@@ -79,7 +75,7 @@ todos.post('/', sValidator('json', TodoCreateSchema), async (c) => {
   }
 });
 
-todos.put('/:id', sValidator('param', object({ id: string() })), sValidator('json', TodoCreateSchema), async (c) => {
+todos.put('/:id', sValidator('param', object({ id: string() })), sValidator('json', TodoUpdateSchema), async (c) => {
   const id = Number(c.req.valid('param').id);
   const body = c.req.valid('json');
 
