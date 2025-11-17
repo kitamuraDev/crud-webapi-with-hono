@@ -1,14 +1,21 @@
-import { int, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { nanoid } from 'nanoid';
 
 export const user = sqliteTable('user', {
-  id: int('id').primaryKey({ autoIncrement: true }),
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => nanoid())
+    .notNull(),
   name: text('name').unique().notNull(),
   password: text('password').notNull(),
 });
 
 export const todo = sqliteTable('todo', {
-  id: int('id').primaryKey({ autoIncrement: true }),
-  userId: int('user_id')
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => nanoid())
+    .notNull(),
+  userId: text('user_id')
     .notNull()
     .references(() => user.id),
   title: text('title').notNull(),

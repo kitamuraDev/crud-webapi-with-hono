@@ -1,7 +1,7 @@
-import { array, boolean, number, object, string } from 'valibot';
+import { array, boolean, object, string } from 'valibot';
 
 export const TodoResponseSchema = object({
-  id: number(),
+  id: string(),
   title: string(),
   isCompleted: boolean(),
 });
