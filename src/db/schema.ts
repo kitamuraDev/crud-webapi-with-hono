@@ -1,16 +1,16 @@
 import { int, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 export const user = sqliteTable('user', {
-  id: int().primaryKey({ autoIncrement: true }),
-  name: text().notNull(),
-  password: text().notNull(),
+  id: int('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull(),
+  password: text('password').notNull(),
 });
 
 export const todo = sqliteTable('todo', {
-  id: int().primaryKey({ autoIncrement: true }),
-  user_id: int()
+  id: int('id').primaryKey({ autoIncrement: true }),
+  userId: int('user_id')
     .notNull()
     .references(() => user.id),
-  title: text().notNull(),
-  is_completed: integer().notNull(), // 0 or 1で管理（boolean型はsqliteに存在しないため）
+  title: text('title').notNull(),
+  isCompleted: integer('is_completed').notNull(), // 0 or 1で管理（boolean型はsqliteに存在しないため）
 });

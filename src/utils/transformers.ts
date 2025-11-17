@@ -10,7 +10,7 @@ export const transformTodoResponse = (todo: InputTodoType): OutputTodoType => {
   return {
     id: todo.id,
     title: todo.title,
-    isCompleted: todo.is_completed === 1,
+    isCompleted: todo.isCompleted === 1,
   };
 };
 
@@ -18,6 +18,6 @@ export const transformTodosResponse = (todos: InputTodoType[]): OutputTodoType[]
   return todos.map((t) => ({
     id: t.id,
     title: t.title,
-    isCompleted: t.is_completed === 1,
+    isCompleted: t.isCompleted === 1,
   }));
 };

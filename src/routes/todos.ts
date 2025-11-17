@@ -12,7 +12,7 @@ const todos = new Hono<{ Bindings: CloudflareBindings }>();
 todos.get('/', async (c) => {
   try {
     const db = drizzle(c.env.todo);
-    const result = await db.select().from(todo).where(eq(todo.user_id, 1)).all(); // TODO: user_idは認証（auth）API実装後に動的に取得すること
+    const result = await db.select().from(todo).where(eq(todo.userId, 1)).all(); // TODO: user_idは認証（auth）API実装後に動的に取得すること
 
     const parsed = safeParse(TodosResponseSchema, transformTodosResponse(result));
     if (!parsed.success) {
@@ -35,7 +35,7 @@ todos.get('/:id', sValidator('param', object({ id: string() })), async (c) => {
     const result = await db
       .select()
       .from(todo)
-      .where(and(eq(todo.user_id, 1), eq(todo.id, id)))
+      .where(and(eq(todo.userId, 1), eq(todo.id, id)))
       .get();
 
     if (!result) {
@@ -56,17 +56,13 @@ todos.get('/:id', sValidator('param', object({ id: string() })), async (c) => {
 });
 
 todos.post('/', sValidator('json', TodoCreateSchema), async (c) => {
-  const { title, isCompleted } = c.req.valid('json');
+  const body = c.req.valid('json');
 
   try {
     const db = drizzle(c.env.todo);
     const result = await db
       .insert(todo)
-      .values({
-        user_id: 1,
-        title: title,
-        is_completed: isCompleted,
-      })
+      .values({ ...body, userId: 1 })
       .returning()
       .get();
 
@@ -85,17 +81,14 @@ todos.post('/', sValidator('json', TodoCreateSchema), async (c) => {
 
 todos.put('/:id', sValidator('param', object({ id: string() })), sValidator('json', TodoCreateSchema), async (c) => {
   const id = Number(c.req.valid('param').id);
-  const { title, isCompleted } = c.req.valid('json');
+  const body = c.req.valid('json');
 
   try {
     const db = drizzle(c.env.todo);
     const result = await db
       .update(todo)
-      .set({
-        title: title,
-        is_completed: isCompleted,
-      })
-      .where(and(eq(todo.user_id, 1), eq(todo.id, id)))
+      .set(body)
+      .where(and(eq(todo.userId, 1), eq(todo.id, id)))
       .returning()
       .get();
 
@@ -123,7 +116,7 @@ todos.delete('/:id', sValidator('param', object({ id: string() })), async (c) =>
     const db = drizzle(c.env.todo);
     const result = await db
       .delete(todo)
-      .where(and(eq(todo.user_id, 1), eq(todo.id, id)))
+      .where(and(eq(todo.userId, 1), eq(todo.id, id)))
       .returning()
       .get();
 
