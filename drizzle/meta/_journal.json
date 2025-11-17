@@ -15,6 +15,13 @@
       "when": 1763348918527,
       "tag": "0001_dizzy_captain_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1763353827846,
+      "tag": "0002_clear_steve_rogers",
+      "breakpoints": true
     }
   ]
 }
