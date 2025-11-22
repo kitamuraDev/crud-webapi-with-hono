@@ -1,9 +1,10 @@
 import { sValidator } from '@hono/standard-validator';
 import { and, eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
-import { Hono } from 'hono';
+import { type Context, Hono } from 'hono';
 import { safeParse } from 'valibot';
 import { todo } from '../db/schema';
+import { jwtAuthMiddleware } from '../middleware/auth';
 import { transformTodoResponse, transformTodosResponse } from '../utils/transformers';
 import {
   CreateTodoSchema,
@@ -14,12 +15,19 @@ import {
 } from '../validators/todo.schema';
 
 const todos = new Hono<{ Bindings: CloudflareBindings }>();
-const userDamyId = 'tfi4wB9ZRyhzVE7EhIyht';
+
+// JWTペイロードからuserIdを取得するユーティリティ関数
+const getUserIdFromPayload = (c: Context<{ Bindings: CloudflareBindings }>) => c.get('jwtPayload').sub as string;
+
+// トークンの検証（認可制御）
+todos.use('*', jwtAuthMiddleware);
 
 todos.get('/', async (c) => {
+  const userId = getUserIdFromPayload(c);
+
   try {
     const db = drizzle(c.env.todo);
-    const result = await db.select().from(todo).where(eq(todo.userId, userDamyId)).all(); // TODO: user_idは認証（auth）API実装後に動的に取得すること
+    const result = await db.select().from(todo).where(eq(todo.userId, userId)).all();
 
     const parsed = safeParse(ResponseTodosSchema, transformTodosResponse(result));
     if (!parsed.success) {
@@ -36,13 +44,14 @@ todos.get('/', async (c) => {
 
 todos.get('/:id', sValidator('param', TodoIdParamSchema), async (c) => {
   const id = c.req.valid('param').id;
+  const userId = getUserIdFromPayload(c);
 
   try {
     const db = drizzle(c.env.todo);
     const result = await db
       .select()
       .from(todo)
-      .where(and(eq(todo.userId, userDamyId), eq(todo.id, id)))
+      .where(and(eq(todo.userId, userId), eq(todo.id, id)))
       .get();
 
     if (!result) {
@@ -64,10 +73,11 @@ todos.get('/:id', sValidator('param', TodoIdParamSchema), async (c) => {
 
 todos.post('/', sValidator('json', CreateTodoSchema), async (c) => {
   const { title } = c.req.valid('json');
+  const userId = getUserIdFromPayload(c);
 
   try {
     const db = drizzle(c.env.todo);
-    const result = await db.insert(todo).values({ userId: userDamyId, title }).returning().get();
+    const result = await db.insert(todo).values({ userId: userId, title }).returning().get();
 
     const parsed = safeParse(ResponseTodoSchema, transformTodoResponse(result));
     if (!parsed.success) {
@@ -85,13 +95,14 @@ todos.post('/', sValidator('json', CreateTodoSchema), async (c) => {
 todos.put('/:id', sValidator('param', TodoIdParamSchema), sValidator('json', UpdateTodoSchema), async (c) => {
   const id = c.req.valid('param').id;
   const body = c.req.valid('json');
+  const userId = getUserIdFromPayload(c);
 
   try {
     const db = drizzle(c.env.todo);
     const result = await db
       .update(todo)
       .set(body)
-      .where(and(eq(todo.userId, userDamyId), eq(todo.id, id)))
+      .where(and(eq(todo.userId, userId), eq(todo.id, id)))
       .returning()
       .get();
 
@@ -114,12 +125,13 @@ todos.put('/:id', sValidator('param', TodoIdParamSchema), sValidator('json', Upd
 
 todos.delete('/:id', sValidator('param', TodoIdParamSchema), async (c) => {
   const id = c.req.valid('param').id;
+  const userId = getUserIdFromPayload(c);
 
   try {
     const db = drizzle(c.env.todo);
     const result = await db
       .delete(todo)
-      .where(and(eq(todo.userId, userDamyId), eq(todo.id, id)))
+      .where(and(eq(todo.userId, userId), eq(todo.id, id)))
       .returning()
       .get();
 

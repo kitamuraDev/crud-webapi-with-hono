@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import auth from './routes/auth';
 import todos from './routes/todos';
 
 const app = new Hono<{ Bindings: CloudflareBindings }>().basePath('/api');
@@ -16,5 +17,6 @@ const app = new Hono<{ Bindings: CloudflareBindings }>().basePath('/api');
  *    - POST: /auth/logout   // ログアウト
  */
 app.route('/todos', todos);
+app.route('/auth', auth);
 
 export default app;

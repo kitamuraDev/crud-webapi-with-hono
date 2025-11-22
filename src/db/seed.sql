@@ -3,8 +3,8 @@ DELETE FROM todo;
 DELETE FROM user;
 
 -- userテーブル初期データ
-INSERT INTO user (id, name, password) VALUES ('tfi4wB9ZRyhzVE7EhIyht', 'Alice', 'password1');
-INSERT INTO user (id, name, password) VALUES ('haymmUwLc0Osqh4zguRyb', 'Bob', 'password2');
+INSERT INTO user (id, name, password) VALUES ('tfi4wB9ZRyhzVE7EhIyht', 'Lillie', '$2b$10$U/PFBvBN3DKunefWBZ.hou/W8I/gjERN9svdYjnBNJDUOglSdTS7S');
+INSERT INTO user (id, name, password) VALUES ('haymmUwLc0Osqh4zguRyb', 'Garcello', '$2b$10$ZdhcQITOOgVb0LjHCq.J8euD8BV0lF8qf7ptlPhD.xJD5U0kJkw6a');
 
 -- todoテーブル初期データ
 INSERT INTO todo (id, user_id, title, is_completed) VALUES ('bnzbOPCZuPz1_QVz67GtA', 'tfi4wB9ZRyhzVE7EhIyht', 'Buy groceries', 0);

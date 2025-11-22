@@ -2,6 +2,10 @@
 @prodBaseUrl = https://crud-webapi-with-hono.kitamuradev.workers.dev
 @basePath = api
 @todoDamyId = bnzbOPCZuPz1_QVz67GtA
+@user1Name = Lillie
+@user1Password = Lillie1101
+@user2Name = Garcello
+@user2Password = Garcello0319
 
 ### ==============================
 ### GET: /todos
@@ -74,3 +78,25 @@ DELETE {{devBaseUrl}}/{{basePath}}/todos/{{todoDamyId}} HTTP/1.1
 ###
 
 DELETE {{prodBaseUrl}}/{{basePath}}/todos/{{todoDamyId}} HTTP/1.1
+
+### ==============================
+### POST: /auth/login
+### ==============================
+
+POST {{devBaseUrl}}/{{basePath}}/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "{{user1Name}}",
+  "password": "{{user1Password}}"
+}
+
+###
+
+POST {{prodBaseUrl}}/{{basePath}}/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "{{user1Name}}",
+  "password": "{{user1Password}}"
+}
