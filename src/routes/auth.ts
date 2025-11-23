@@ -3,16 +3,12 @@ import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
 import { Hono } from 'hono';
-import { setCookie } from 'hono/cookie';
+import { deleteCookie, setCookie } from 'hono/cookie';
 import { sign } from 'hono/jwt';
 import type { JWTPayload } from 'hono/utils/jwt/types';
 import { user } from '../db/schema';
 import { LoginBodySchema } from '../validators/auth.schema';
 
-/**
- * [x] POST: /auth/login
- * [ ] POST: /auth/logout
- */
 const auth = new Hono<{ Bindings: CloudflareBindings }>();
 
 auth.post('/login', sValidator('json', LoginBodySchema), async (c) => {
@@ -48,6 +44,15 @@ auth.post('/login', sValidator('json', LoginBodySchema), async (c) => {
     console.error(e);
     return c.json({ message: 'Internal Server Error' }, 500);
   }
+});
+
+auth.post('/logout', async (c) => {
+  deleteCookie(c, 'token', {
+    httpOnly: true,
+    sameSite: 'Strict',
+  });
+
+  return c.json({ message: 'Logged out successfully' }, 200);
 });
 
 export default auth;

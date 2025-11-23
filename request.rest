@@ -100,3 +100,13 @@ Content-Type: application/json
   "name": "{{user1Name}}",
   "password": "{{user1Password}}"
 }
+
+### ==============================
+### POST: /auth/logout
+### ==============================
+
+POST {{devBaseUrl}}/{{basePath}}/auth/logout HTTP/1.1
+
+###
+
+POST {{prodBaseUrl}}/{{basePath}}/auth/logout HTTP/1.1
