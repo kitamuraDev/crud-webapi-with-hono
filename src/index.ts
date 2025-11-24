@@ -1,12 +1,11 @@
-import { Hono } from 'hono';
+import { createHonoApp } from './app';
+import { jwtAuthMiddleware } from './middleware/auth';
 import auth from './routes/auth';
 import todos from './routes/todos';
 
-const app = new Hono<{ Bindings: CloudflareBindings }>().basePath('/api');
-
 /**
  * エンドポイント一覧
- *  - タスク（※`user_id`はHonoのMiddlewareでJWTをパースして取得するため、パスやクエリには含めない）
+ *  - タスク
  *    - GET: /todos         // タスク一覧取得
  *    - GET: /todos/{id}    // タスク単一取得
  *    - POST: /todos        // タスク作成
@@ -16,6 +15,10 @@ const app = new Hono<{ Bindings: CloudflareBindings }>().basePath('/api');
  *    - POST: /auth/login    // ログイン
  *    - POST: /auth/logout   // ログアウト
  */
+const app = createHonoApp().basePath('/api');
+
+app.use('/todos/*', jwtAuthMiddleware); // トークンの検証（認可制御）
+
 app.route('/todos', todos);
 app.route('/auth', auth);
 

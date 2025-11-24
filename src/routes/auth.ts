@@ -1,21 +1,20 @@
 import { sValidator } from '@hono/standard-validator';
 import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/d1';
-import { Hono } from 'hono';
 import { deleteCookie, setCookie } from 'hono/cookie';
 import { sign } from 'hono/jwt';
 import type { JWTPayload } from 'hono/utils/jwt/types';
+import { createHonoApp } from '../app';
 import { user } from '../db/schema';
 import { LoginBodySchema } from '../validators/auth.schema';
 
-const auth = new Hono<{ Bindings: CloudflareBindings }>();
+const auth = createHonoApp();
 
 auth.post('/login', sValidator('json', LoginBodySchema), async (c) => {
   const body = c.req.valid('json');
 
   try {
-    const db = drizzle(c.env.todo);
+    const db = c.get('db');
     const result = await db.select().from(user).where(eq(user.name, body.name)).get();
 
     if (!result) {
