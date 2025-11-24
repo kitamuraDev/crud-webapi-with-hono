@@ -1,13 +1,15 @@
 import type { Context, Next } from 'hono';
 import { getCookie } from 'hono/cookie';
+import { HTTPException } from 'hono/http-exception';
 import { verify } from 'hono/jwt';
 import type { Env } from '../app';
+import type { ErrorCause } from './error';
 
 // JWT認可ミドルウェア
 export const jwtAuthMiddleware = async (c: Context<Env>, next: Next) => {
   const token = getCookie(c, 'token');
   if (!token) {
-    return c.json({ message: 'Invalid token' }, 401);
+    throw new HTTPException(401, { cause: 'INVALID_TOKEN' satisfies ErrorCause });
   }
 
   try {
@@ -15,8 +17,7 @@ export const jwtAuthMiddleware = async (c: Context<Env>, next: Next) => {
     c.set('userId', payload.sub as string);
 
     await next();
-  } catch (e) {
-    console.error(e);
-    return c.json({ message: 'Invalid token' }, 401);
+  } catch (_e) {
+    throw new HTTPException(401, { cause: 'INVALID_TOKEN' satisfies ErrorCause });
   }
 };

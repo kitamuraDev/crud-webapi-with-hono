@@ -1,5 +1,6 @@
 import { type DrizzleD1Database, drizzle } from 'drizzle-orm/d1';
 import { Hono } from 'hono';
+import { errorHandlingMiddleware } from './middleware/error';
 
 export type Env = {
   Bindings: CloudflareBindings;
@@ -16,6 +17,8 @@ export const createHonoApp = () => {
     c.set('db', drizzle(c.env.todo));
     await next();
   });
+
+  app.onError(errorHandlingMiddleware);
 
   return app;
 };
