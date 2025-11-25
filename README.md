@@ -6,7 +6,7 @@
 
 ```bash
 bun add drizzle-orm
-bun add -D drizzle-kit dotenv @types/node
+bun add -D drizzle-kit @types/bun
 ```
 
 2. D1にデータベースを作成
@@ -32,9 +32,9 @@ bun run wrangler d1 create todo
 bun run cf-typegen
 ```
 
-5. Cloudflare の認証情報を .env ファイルに追記
+5. Cloudflare の認証情報を .dev.vars ファイルに追記
 
-```env
+```.dev.vars
 CLOUDFLARE_ACCOUNT_ID='CloudflareのアカウントID'
 CLOUDFLARE_DATABASE_ID='wrangler.jsoncファイルに設定したdatabase_idと同じ値'
 CLOUDFLARE_D1_TOKEN='Cloudflareダッシュボードで発行したAPIトークン'
@@ -46,12 +46,12 @@ CLOUDFLARE_D1_TOKEN='Cloudflareダッシュボードで発行したAPIトーク�
 
 7. tsconfig.json を編集する
 
-`compilerOptions > types` に `"node"` を追記（`process.env`の型定義エラーを解消するため）
+`compilerOptions > types` に `"bun"` を追記（`process.env`の型定義エラーを解消するため）
 
 ```json
     "types": [
       "./worker-configuration.d.ts",
-+     "node"
++     "bun"
     ]
 ```
 
