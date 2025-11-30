@@ -11,7 +11,8 @@
     "db:migrate:local": "wrangler d1 migrations apply todo --local",
     "db:migrate:remote": "wrangler d1 migrations apply todo --remote",
     "db:seed:local": "wrangler d1 execute todo --local --file=./src/db/seed.sql",
-    "db:seed:remote": "wrangler d1 execute todo --remote --file=./src/db/seed.sql"
+    "db:seed:remote": "wrangler d1 execute todo --remote --file=./src/db/seed.sql",
+    "test": "bun run db:seed:local && vitest"
   },
   "dependencies": {
     "@hono/standard-validator": "^0.1.5",
@@ -25,6 +26,7 @@
     "@biomejs/biome": "2.3.2",
     "@types/bun": "^1.3.3",
     "drizzle-kit": "^0.31.6",
+    "vitest": "^4.0.14",
     "wrangler": "^4.45.3"
   }
 }

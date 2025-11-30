@@ -9,7 +9,6 @@ export type ErrorCause = 'INVALID_CREDENTIALS' | 'INVALID_TOKEN' | 'NOT_FOUND' |
 export const errorHandlingMiddleware = (err: Error | HTTPResponseError, c: Context<Env>) => {
   const cause = err.cause as ErrorCause;
 
-  console.error(err);
   if (err instanceof HTTPException) {
     switch (cause) {
       case 'INVALID_CREDENTIALS':
